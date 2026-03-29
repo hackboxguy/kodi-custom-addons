@@ -138,8 +138,24 @@ MARKER="/home/pi/kodi-custom-addons/.addons-enabled"
 # Skip if already done
 [ -f "$MARKER" ] && exit 0
 
-# Wait for Kodi JSON-RPC to become available (up to 120 seconds)
-for i in $(seq 1 60); do
+# Wait for Kodi process to exist (up to 300 seconds)
+# Kodi is not started at boot - it's launched by the user via qt-demo-launcher
+KODI_FOUND=false
+for i in $(seq 1 150); do
+    if pgrep -x kodi.bin >/dev/null 2>&1 || pgrep -x kodi >/dev/null 2>&1; then
+        KODI_FOUND=true
+        break
+    fi
+    sleep 2
+done
+
+if [ "$KODI_FOUND" = false ]; then
+    logger "kodi-custom-addons: Kodi not started within timeout, will retry next boot"
+    exit 0
+fi
+
+# Kodi is running, wait for JSON-RPC to become available (up to 30 seconds)
+for i in $(seq 1 15); do
     if curl -sf "$KODI_URL" -H "Content-Type: application/json" \
          -d '{"jsonrpc":"2.0","method":"JSONRPC.Ping","id":1}' >/dev/null 2>&1; then
         break
@@ -154,6 +170,8 @@ RESULT=$(curl -sf "$KODI_URL" -H "Content-Type: application/json" \
 if echo "$RESULT" | grep -q '"OK"'; then
     touch "$MARKER"
     logger "kodi-custom-addons: video loop toggle addon enabled"
+else
+    logger "kodi-custom-addons: enable failed, will retry next boot"
 fi
 ENABLER
 chmod +x "${ENABLER_SCRIPT}"
@@ -166,10 +184,10 @@ After=network.target
 Wants=network.target
 
 [Service]
-Type=oneshot
+Type=simple
 User=pi
 ExecStart=${INSTALL_DIR}/enable-addons-once.sh
-RemainAfterExit=no
+TimeoutStartSec=0
 
 [Install]
 WantedBy=multi-user.target
