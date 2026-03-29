@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="script.videoloop.toggle"
+       name="Video Loop Toggle"
+       version="1.0.0"
+       provider-name="hackboxguy">
+    <requires>
+        <import addon="xbmc.python" version="3.0.0"/>
+    </requires>
+    <!-- Background service: monitors repeat state and updates skin property -->
+    <extension point="xbmc.service" library="service.py" start="startup"/>
+    <!-- Runnable script for direct invocation (OSD button, keymap, API) -->
+    <extension point="xbmc.python.script" library="default.py">
+        <provides>executable</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en">Toggle single-video repeat on/off from the OSD</summary>
+        <description lang="en">Adds a Loop on/off toggle button to the Kodi video player OSD. Toggle via OSD button, 'L' key, or JSON-RPC API (Addons.ExecuteAddon). When enabled, the currently playing video restarts automatically when it ends.</description>
+        <platform>all</platform>
+        <license>MIT</license>
+    </extension>
+</addon>
