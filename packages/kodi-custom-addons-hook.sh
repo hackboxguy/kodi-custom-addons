@@ -209,6 +209,9 @@ cp -r "${SRC_DIR}/packages" "${INSTALL_DIR}/"
 chown -R 1000:1000 "${INSTALL_DIR}"
 log_ok
 
+# Ensure entire .kodi tree is owned by pi (hook runs as root in chroot)
+chown -R 1000:1000 "${KODI_USER_HOME}/.kodi"
+
 #------------------------------------------------------------------------------
 # Cleanup
 #------------------------------------------------------------------------------
