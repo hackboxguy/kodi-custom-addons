@@ -122,15 +122,15 @@ log_ok
 #------------------------------------------------------------------------------
 log_step "[5/7] Enabling Kodi web server for API access..."
 
-GUISETTINGS="${KODI_USERDATA_DIR}/guisettings.xml"
-if [ -f "${GUISETTINGS}" ]; then
-    # Patch existing guisettings.xml
-    sed -i 's|id="services.webserver"[^>]*>false|id="services.webserver">true|' "${GUISETTINGS}"
-    # Remove the default="true" attribute so Kodi doesn't reset it
-    sed -i 's|id="services.webserver" default="true">true|id="services.webserver">true|' "${GUISETTINGS}"
+mkdir -p "${KODI_USERDATA_DIR}"
+# Install pre-configured guisettings.xml (captured from a working Kodi
+# installation with HTTP web server enabled on port 8080, no auth)
+if [ -f "${SRC_DIR}/addons/script.videoloop.toggle/guisettings.xml" ]; then
+    cp "${SRC_DIR}/addons/script.videoloop.toggle/guisettings.xml" "${KODI_USERDATA_DIR}/"
+    chown 1000:1000 "${KODI_USERDATA_DIR}/guisettings.xml"
     log_ok
 else
-    echo "[SKIP] guisettings.xml not found - webserver will need manual enable"
+    echo "[SKIP] guisettings.xml not found in repo"
 fi
 
 #------------------------------------------------------------------------------
